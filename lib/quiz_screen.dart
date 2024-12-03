@@ -28,7 +28,7 @@ class _QuizScreenState extends State<QuizScreen> {
   int _score = 0;
   bool _isAnswered = false;
   Timer? _timer;
-  int _timeLeft = 15;
+  int _timeLeft = 30;
 
   @override
   void initState() {
@@ -45,7 +45,7 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _startTimer() {
-    _timeLeft = 15;
+    _timeLeft = 30;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_timeLeft > 0) {
         setState(() => _timeLeft--);
@@ -57,7 +57,7 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _handleAnswer(String? selectedAnswer) async {
-    final questions = await _quizQuestions; // Wait for questions
+    final questions = await _quizQuestions;
     setState(() {
       _isAnswered = true;
       final correctAnswer = questions[_currentQuestionIndex]['correct_answer'];
@@ -74,7 +74,7 @@ class _QuizScreenState extends State<QuizScreen> {
         });
       } else {
         _timer?.cancel();
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => SummaryScreen(score: _score, totalQuestions: widget.questionCount),
@@ -86,40 +86,46 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Quiz')),
-      body: FutureBuilder<List<dynamic>>(
-        future: _quizQuestions,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return const Center(child: Text('Error loading questions.'));
-          }
-          final questions = snapshot.data!;
-          final currentQuestion = questions[_currentQuestionIndex];
+    return WillPopScope(
+      onWillPop: () async {
+        _timer?.cancel();
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Quiz')),
+        body: FutureBuilder<List<dynamic>>(
+          future: _quizQuestions,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return const Center(child: Text('Error loading questions.'));
+            }
+            final questions = snapshot.data!;
+            final currentQuestion = questions[_currentQuestionIndex];
 
-          return Column(
-            children: [
-              Text('Score: $_score'),
-              Text('Time left: $_timeLeft'),
-              Text('Question ${_currentQuestionIndex + 1} of ${widget.questionCount}'),
-              Text(currentQuestion['question']),
-              ...currentQuestion['incorrect_answers']
-                  .map<Widget>(
-                    (answer) => ElevatedButton(
-                      onPressed: _isAnswered ? null : () => _handleAnswer(answer),
-                      child: Text(answer),
-                    ),
-                  )
-                  .toList(),
-              ElevatedButton(
-                onPressed: _isAnswered ? null : () => _handleAnswer(currentQuestion['correct_answer']),
-                child: Text(currentQuestion['correct_answer']),
-              ),
-            ],
-          );
-        },
+            return Column(
+              children: [
+                Text('Score: $_score', style: const TextStyle(fontSize: 16)),
+                Text('Time left: $_timeLeft', style: const TextStyle(fontSize: 16)),
+                Text('Question ${_currentQuestionIndex + 1} of ${widget.questionCount}', style: const TextStyle(fontSize: 16)),
+                Text(currentQuestion['question'], style: const TextStyle(fontSize: 18)),
+                ...currentQuestion['incorrect_answers']
+                    .map<Widget>(
+                      (answer) => ElevatedButton(
+                        onPressed: _isAnswered ? null : () => _handleAnswer(answer),
+                        child: Text(answer),
+                      ),
+                    )
+                    .toList(),
+                ElevatedButton(
+                  onPressed: _isAnswered ? null : () => _handleAnswer(currentQuestion['correct_answer']),
+                  child: Text(currentQuestion['correct_answer']),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
