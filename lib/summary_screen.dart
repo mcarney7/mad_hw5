@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'quiz_setup_screen.dart';
 
 class SummaryScreen extends StatelessWidget {
   final int score;
@@ -13,7 +14,12 @@ class SummaryScreen extends StatelessWidget {
         title: const Text('Quiz Summary'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const QuizSetupScreen()),
+            );
+          },
         ),
       ),
       body: Center(
@@ -22,7 +28,12 @@ class SummaryScreen extends StatelessWidget {
           children: [
             Text('Your Score: $score/$totalQuestions', style: const TextStyle(fontSize: 20)),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const QuizSetupScreen()),
+                );
+              },
               child: const Text('Retake Quiz'),
             ),
           ],

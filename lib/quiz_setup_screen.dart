@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'quiz_screen.dart';
 
 class QuizSetupScreen extends StatefulWidget {
@@ -12,9 +14,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
   int _questionCount = 5;
   String? _selectedCategory;
   String _difficulty = 'easy';
-  String _type = 'multiple';
-
-  final List<Map<String, String>> _categories = [
+  List<Map<String, String>> _categories = [
     {'id': '9', 'name': 'General Knowledge'},
     {'id': '11', 'name': 'Movies'},
     {'id': '17', 'name': 'Science & Nature'},
@@ -35,7 +35,10 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
             DropdownButton<int>(
               value: _questionCount,
               onChanged: (value) => setState(() => _questionCount = value!),
-              items: [5, 10, 15].map((count) => DropdownMenuItem(value: count, child: Text('$count'))).toList(),
+              items: [5, 10, 15]
+                  .map((count) =>
+                      DropdownMenuItem(value: count, child: Text('$count')))
+                  .toList(),
             ),
             const SizedBox(height: 16),
             const Text('Category:', style: TextStyle(fontSize: 16)),
@@ -43,7 +46,10 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
               value: _selectedCategory,
               onChanged: (value) => setState(() => _selectedCategory = value),
               items: _categories
-                  .map((category) => DropdownMenuItem(value: category['id'], child: Text(category['name']!)))
+                  .map((category) => DropdownMenuItem(
+                        value: category['id'],
+                        child: Text(category['name']!),
+                      ))
                   .toList(),
             ),
             const SizedBox(height: 16),
@@ -51,15 +57,9 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
             DropdownButton<String>(
               value: _difficulty,
               onChanged: (value) => setState(() => _difficulty = value!),
-              items: ['easy', 'medium', 'hard'].map((level) => DropdownMenuItem(value: level, child: Text(level))).toList(),
-            ),
-            const SizedBox(height: 16),
-            const Text('Type:', style: TextStyle(fontSize: 16)),
-            DropdownButton<String>(
-              value: _type,
-              onChanged: (value) => setState(() => _type = value!),
-              items: ['multiple', 'boolean']
-                  .map((type) => DropdownMenuItem(value: type, child: Text(type)))
+              items: ['easy', 'medium', 'hard']
+                  .map((level) =>
+                      DropdownMenuItem(value: level, child: Text(level)))
                   .toList(),
             ),
             const SizedBox(height: 16),
@@ -74,7 +74,6 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                           questionCount: _questionCount,
                           category: _selectedCategory,
                           difficulty: _difficulty,
-                          type: _type,
                         ),
                       ),
                     );
